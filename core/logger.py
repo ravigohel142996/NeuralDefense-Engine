@@ -137,12 +137,15 @@ class EventLogger:
         """
         if self._df.empty:
             return pd.DataFrame(columns=["attack_type", "count"])
-        return (
+        counts = (
             self._df["predicted_attack"]
             .value_counts()
             .reset_index()
-            .rename(columns={"predicted_attack": "attack_type", "count": "count"})
         )
+        # pandas ≥2.0 names columns ('predicted_attack', 'count');
+        # older versions name them ('index', 'predicted_attack').
+        counts.columns = ["attack_type", "count"]
+        return counts
 
     def recent_threats(self, n: int = 10) -> pd.DataFrame:
         """Return the *n* most recent rows where a threat was detected."""
